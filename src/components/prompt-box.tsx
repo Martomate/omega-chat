@@ -12,6 +12,55 @@ const performPrompt = async (prompt: string, history: HistoryItem[]) => {
   return response;
 };
 
+type HistoryRowProps = { index: number; message: string; isHuman: boolean };
+type NameProps = { bgColor: string; borderColor: string; children: any };
+type MessageProps = { borderColor: string; children: any };
+
+const Name = ({ bgColor, borderColor, children }: NameProps) => (
+  <div
+    className={`p-1 text-xs text-center align-middle rounded-md border ${borderColor} ${bgColor}`}
+  >
+    {children}
+  </div>
+);
+
+const Message = ({ borderColor, children }: MessageProps) => (
+  <p
+    className={`p-1 w-full bg-slate-950 rounded-md border border-solid ${borderColor}`}
+  >
+    {children}
+  </p>
+);
+
+const HistoryRow = ({ index, message, isHuman }: HistoryRowProps) => {
+  const nameTag = !isHuman ? (
+    <Name bgColor="bg-blue-900" borderColor="border-blue-600">
+      AI
+    </Name>
+  ) : (
+    <Name bgColor="bg-green-900" borderColor="border-green-600">
+      You
+    </Name>
+  );
+
+  const messageTag = isHuman ? (
+    <Message borderColor="border-green-500">{message}</Message>
+  ) : (
+    <Message borderColor="border-blue-500">{message}</Message>
+  );
+
+  return (
+    <div
+      key={index}
+      className="p-1 w-full grid grid-flow-col grid-cols-[2rem,auto,2rem] items-center gap-1"
+    >
+      {isHuman ? <div></div> : nameTag}
+      {messageTag}
+      {isHuman ? nameTag : <div></div>}
+    </div>
+  );
+};
+
 export default function PromptBox() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [prompt, setPrompt] = useState<string>("");
@@ -26,20 +75,18 @@ export default function PromptBox() {
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-[32rem]">
       {history.length ? (
         <div className="min-w-full">
           {history.map(({ prompt, response }, index) => (
-            <div key={index} className="p-1 max-w-md">
-              <p className="text-xs mt-1 p-1">You:</p>
-              <p className="p-1 bg-slate-950 rounded-md border border-solid border-green-500">
-                {prompt}
-              </p>
-              <p className="text-xs mt-3 p-1">AI:</p>
-              <p className="p-1 bg-slate-950 rounded-md border border-solid border-blue-500">
-                {response}
-              </p>
-            </div>
+            <>
+              <HistoryRow index={2 * index} message={prompt} isHuman={true} />
+              <HistoryRow
+                index={2 * index + 1}
+                message={response}
+                isHuman={false}
+              />
+            </>
           ))}
         </div>
       ) : undefined}
