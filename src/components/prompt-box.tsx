@@ -1,28 +1,23 @@
 "use client";
 
-import { PromptResponse } from "@/app/api/prompt/route";
+import { HistoryItem, PromptResponse } from "@/app/api/prompt/route";
 import { useState } from "react";
 
-const performPrompt = async (prompt: string) => {
+const performPrompt = async (prompt: string, history: HistoryItem[]) => {
   const res = await fetch("/api/prompt", {
     method: "POST",
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ prompt, history }),
   });
   const { response }: PromptResponse = await res.json();
   return response;
 };
 
-type HistoryItem = { prompt: string; response: string };
-
 export default function PromptBox() {
-  const [prompt, setPrompt] = useState<string>("");
-  const [response, setResponse] = useState<string | undefined>();
-
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [prompt, setPrompt] = useState<string>("");
 
   const submitPrompt = async () => {
-    const text = await performPrompt(prompt);
-    setResponse(text);
+    const text = await performPrompt(prompt, history);
     setHistory([...history, { prompt, response: text }]);
   };
 
@@ -42,8 +37,8 @@ export default function PromptBox() {
       </button>
       {history.length ? (
         <div>
-          {history.map(({ prompt, response }) => (
-            <>
+          {history.map(({ prompt, response }, index) => (
+            <div key={index}>
               <hr />
               <p>
                 You: <span>{prompt}</span>
@@ -51,7 +46,7 @@ export default function PromptBox() {
               <p>
                 AI: <span>{response}</span>
               </p>
-            </>
+            </div>
           ))}
         </div>
       ) : undefined}

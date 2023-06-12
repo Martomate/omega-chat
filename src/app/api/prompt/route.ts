@@ -1,18 +1,41 @@
+import { ConversationChain } from "langchain/chains";
+import { OpenAI } from "langchain/llms/openai";
+import { BufferMemory, ChatMessageHistory } from "langchain/memory";
+import { AIChatMessage, HumanChatMessage } from "langchain/schema";
 import { NextResponse } from "next/server";
-import { OpenAiClient } from "./OpenAI";
 import { env } from "process";
 
-export type PromptInput = { prompt: string };
+const enabled = true;
+
+export type HistoryItem = { prompt: string; response: string };
+
+export type PromptInput = { prompt: string; history: HistoryItem[] };
 export type PromptResponse = { response: string };
 
 const openAiKey = env.OPENAI_KEY;
 if (!openAiKey?.length) throw new Error("No OpenAI key provided!");
-const openAi = new OpenAiClient(openAiKey);
+
+const performPrompt = async (prompt: string, history: HistoryItem[]) => {
+  const model = new OpenAI({ openAIApiKey: openAiKey });
+  const memory = new BufferMemory({
+    chatHistory: new ChatMessageHistory(
+      history.flatMap((h) => [
+        new HumanChatMessage(h.prompt),
+        new AIChatMessage(h.response),
+      ])
+    ),
+  });
+  const chain = new ConversationChain({ llm: model, memory: memory });
+  const { response } = await chain.call({ input: prompt });
+  return response;
+};
 
 export async function POST(req: Request) {
-  const { prompt }: PromptInput = await req.json();
+  const { prompt, history }: PromptInput = await req.json();
 
-  const response = await openAi.prompt(prompt);
+  const response = await (enabled
+    ? performPrompt(prompt, history)
+    : Promise.resolve("test"));
 
   const res: PromptResponse = { response };
 
