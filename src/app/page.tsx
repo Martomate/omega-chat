@@ -1,9 +1,9 @@
-import Hello from "@/components/hello";
+import PromptBox from "@/components/prompt-box";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      Hello World! Text: <Hello />
+      <PromptBox />
     </main>
   );
 }
