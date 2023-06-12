@@ -17,39 +17,47 @@ export default function PromptBox() {
   const [prompt, setPrompt] = useState<string>("");
 
   const submitPrompt = async () => {
+    if (!prompt.length) return;
+    setPrompt("");
+    const currentHistory = [...history];
+    setHistory([...currentHistory, { prompt, response: "..." }]);
     const text = await performPrompt(prompt, history);
-    setHistory([...history, { prompt, response: text }]);
+    setHistory([...currentHistory, { prompt, response: text }]);
   };
 
   return (
     <div className="flex flex-col items-center">
-      <p>Enter prompt below</p>
-      <textarea
-        className="border-2 border-solid border-slate-200 bg-slate-900 mb-3"
-        onChange={(e) => setPrompt(e.target.value)}
-        value={prompt}
-      />
-      <button
-        className="border-2 border-solid border-slate-200 rounded-md bg-slate-800 mb-3"
-        onClick={submitPrompt}
-      >
-        Submit
-      </button>
       {history.length ? (
-        <div>
+        <div className="min-w-full">
           {history.map(({ prompt, response }, index) => (
-            <div key={index}>
-              <hr />
-              <p>
-                You: <span>{prompt}</span>
+            <div key={index} className="p-1 max-w-md">
+              <p className="text-xs mt-1 p-1">You:</p>
+              <p className="p-1 bg-slate-950 rounded-md border border-solid border-green-500">
+                {prompt}
               </p>
-              <p>
-                AI: <span>{response}</span>
+              <p className="text-xs mt-3 p-1">AI:</p>
+              <p className="p-1 bg-slate-950 rounded-md border border-solid border-blue-500">
+                {response}
               </p>
             </div>
           ))}
         </div>
       ) : undefined}
+      <p className="mb-2 mt-8">Enter prompt below</p>
+      <textarea
+        className="border border-solid border-green-600 rounded-md bg-slate-950 mb-3 p-1 outline-none focus:border-green-400"
+        rows={4}
+        cols={40}
+        onChange={(e) => setPrompt(e.target.value)}
+        onSubmit={submitPrompt}
+        value={prompt}
+      />
+      <button
+        className="border border-solid border-blue-600 rounded-md bg-slate-950 mb-3 p-1 outline-none focus:border-blue-400"
+        onClick={submitPrompt}
+      >
+        Submit
+      </button>
     </div>
   );
 }
