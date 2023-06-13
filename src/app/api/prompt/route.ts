@@ -5,6 +5,8 @@ import { AIChatMessage, HumanChatMessage } from "langchain/schema";
 import { NextResponse } from "next/server";
 import { env } from "process";
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 const enabled = true;
 
 export type HistoryItem = { prompt: string; response: string };
@@ -35,7 +37,7 @@ export async function POST(req: Request) {
 
   const response = await (enabled
     ? performPrompt(prompt, history)
-    : Promise.resolve("test"));
+    : sleep(1000).then(() => "test"));
 
   const res: PromptResponse = { response };
 
