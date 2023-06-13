@@ -26,7 +26,7 @@ const Name = ({ bgColor, borderColor, children }: NameProps) => (
 
 const Message = ({ borderColor, children }: MessageProps) => (
   <p
-    className={`p-1 w-full bg-slate-950 rounded-md border border-solid ${borderColor}`}
+    className={`p-1 w-full bg-slate-950 rounded-md border border-solid ${borderColor} whitespace-pre-wrap font-mono`}
   >
     {children}
   </p>
@@ -75,7 +75,7 @@ export default function PromptBox() {
   };
 
   return (
-    <div className="flex flex-col items-center w-[32rem]">
+    <div className="flex flex-col items-center w-[42rem] max-w-[42rem]">
       {history.length ? (
         <div className="min-w-full">
           {history.map(({ prompt, response }, index) => (
